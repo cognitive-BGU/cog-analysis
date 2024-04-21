@@ -1,4 +1,5 @@
 import json
+import os
 
 import pandas as pd
 from scipy.signal import argrelextrema
@@ -41,10 +42,10 @@ def get_mp_data(filename, side, time_interval):
     return data_dict[key]
 
 
-def load_trials_from_json(angle_velocity):
-    json_file = 'trials.json'
+def load_trials_from_json(angle_velocity, trials_filename):
+
     try:
-        with open(json_file, 'r') as f:
+        with open(trials_filename, 'r') as f:
             trials_data = json.load(f)
         trials = [[int(j) for j in item['trial']] for item in trials_data]
         max_v_indices = [item['max'] for item in trials_data]
@@ -52,9 +53,8 @@ def load_trials_from_json(angle_velocity):
         max_v_indices = argrelextrema(np.array(angle_velocity), np.greater_equal, order=n)[0]
         trials = [[int(j) for j in find_interval(angle_velocity, index)] for index in max_v_indices]
         trials_data = [{'max': int(max_v), 'trial': trial} for max_v, trial in zip(max_v_indices, trials)]
-        with open(json_file, 'w') as f:
+        with open(trials_filename, 'w') as f:
             json.dump(trials_data, f, indent=4)
-    print(trials, max_v_indices)
     return trials, max_v_indices
 
 
@@ -69,7 +69,10 @@ def make_graph(filename, angle, graph, time_interval, task):
     time = list(data['T (sec)'].values)
     angle_velocity = calculate_velocity(time, angle_data)
     dist_from_target = calculate_dist_from_target(data, side)
-    trials, max_v_indices = load_trials_from_json(angle_velocity)
+
+    directory = os.path.dirname(filename)
+    trials_filename = os.path.join(directory, f'{side}.json')
+    trials, max_v_indices = load_trials_from_json(angle_velocity, trials_filename)
 
     if graph == 'values':
         return make_values_graph(fig, trials, max_v_indices, angle_velocity, time,

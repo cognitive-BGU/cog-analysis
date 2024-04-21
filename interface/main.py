@@ -8,7 +8,7 @@ from edit_trials import edit_trials
 
 FONTSIZE = 14
 
-angle = "LEFT"
+side = "LEFT"
 graph = "values"
 task = "task 1"
 trials = []
@@ -28,9 +28,9 @@ def update_button_state():
         show_button.config(state="disabled")
         edit_trails_button.config(state="disabled")
 
-def select_angle(event):
-    global angle
-    angle = angle_var.get()
+def side_angle(event):
+    global side
+    side = side_var.get()
 
 def select_graph(event):
     global graph
@@ -44,7 +44,7 @@ def show_graph():
     global trials, filename
     from_value = float(from_entry.get())
     to_value = float(to_entry.get())
-    fig = make_graph(filename, angle, graph, [from_value, to_value], task)
+    fig = make_graph(filename, side, graph, [from_value, to_value], task)
     plt.show()
 
     canvas.figure = fig
@@ -64,12 +64,12 @@ frame.pack()
 select_file_button = ttk.Button(frame, text="Select file", command=select_file)
 select_file_button.pack(side=tk.LEFT)
 
-# Select angle dropdown
-angle_var = tk.StringVar(root)
-angle_var.set("LEFT")  # default value
-angle_options = ["LEFT", "LEFT", "RIGHT"]
-angle_dropdown = ttk.OptionMenu(frame, angle_var, *angle_options, command=select_angle)
-angle_dropdown.pack(side=tk.LEFT)
+# Select side dropdown
+side_var = tk.StringVar(root)
+side_var.set("LEFT")  # default value
+side_options = ["LEFT", "LEFT", "RIGHT"]
+side_dropdown = ttk.OptionMenu(frame, side_var, *side_options, command=side_angle)
+side_dropdown.pack(side=tk.LEFT)
 
 # Select graph dropdown
 graph_var = tk.StringVar(root)
@@ -108,7 +108,7 @@ show_button.pack(side=tk.LEFT)
 
 # Edit Trails button
 edit_trails_button = ttk.Button(frame, text="Edit Trials",
-                                command=lambda: edit_trials(filename, angle, [float(from_entry.get()), float(to_entry.get())]))
+                                command=lambda: edit_trials(filename, side, [float(from_entry.get()), float(to_entry.get())]))
 edit_trails_button.pack(side=tk.LEFT)
 update_button_state()
 
