@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, ttk
-
 import matplotlib
+from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from adv_analysis import make_graph
 
@@ -9,107 +9,52 @@ from adv_analysis import make_graph
 WINDOW_LENGTH = 101
 POLYNOM_ORDER = 3
 
+FONTSIZE = 14
+
 angle = "Left"
 graph = "values"
 task = "task 1"
 trials = []
-
-
-def show_trials():
-    global trials
-    global trials_window
-    if 'trials_window' in globals():
-        trials_window.destroy()
-    trials_window = tk.Toplevel(root)
-    trials_window.title("Trials")
-
-    # Set the size and position of the window
-    trials_window.geometry("300x600+{}+{}".format(root.winfo_x() + 100, root.winfo_y() + 100))
-
-    # Add title
-    title_label = ttk.Label(trials_window, text="frame", font=("TkDefaultFont", 12))
-    title_label.grid(row=0, column=1, columnspan=2)
-    title_label = ttk.Label(trials_window, text="seconds", font=("TkDefaultFont", 12))
-    title_label.grid(row=0, column=3, columnspan=2)
-
-    def delete_trial(i):
-        del trials[i]
-        show_trials()
-
-    def save_trials():
-        global trials
-        for i, trial in enumerate(trials):
-            for j in range(len(trial)):
-                trial_entry = trials_window.grid_slaves(row=i + 1, column=j + 1)[0]
-                trial[j] = int(trial_entry.get())
-        trials_window.destroy()
-
-    for i, trial in enumerate(trials):
-        trial_label = ttk.Label(trials_window, text=f"Trial {i + 1}:")
-        trial_label.grid(row=i + 1, column=0)
-        for j, value in enumerate(trial):
-            trial_entry = ttk.Entry(trials_window, width=5)
-            trial_entry.insert(0, str(value))
-            trial_entry.grid(row=i + 1, column=j + 1)
-        # Add label displaying trial value divided by 60
-        trial_start_label = ttk.Label(trials_window, text=f"{(trial[0]) / 60:.2f}")
-        trial_start_label.grid(row=i + 1, column=len(trial) + 1)
-        trial_end_label = ttk.Label(trials_window, text=f"{(trial[1]) / 60:.2f}")
-        trial_end_label.grid(row=i + 1, column=len(trial) + 2)
-
-        delete_button = tk.Button(trials_window, text="Delete", command=lambda i=i: delete_trial(i))
-        delete_button.configure(font=("TkDefaultFont", 12))  # Make the font on the Delete button smaller
-        delete_button.grid(row=i + 1, column=len(trial) + 3)
-
-    # Save button
-    save_button = tk.Button(trials_window, text="Save", command=save_trials)
-    save_button.configure(font=("TkDefaultFont", 12))
-    save_button.grid(row=len(trials) + 1, column=0, columnspan=len(trials[0]) + 3)
-
+file_path = None
 
 def select_file():
-    global fstFile, trials
-    fstFile = filedialog.askopenfilename()
+    global file_path, trials
+    file_path = filedialog.askopenfilename()
     trials = []
+    update_button_state()
 
+def update_button_state():
+    if file_path is not None:
+        show_button.config(state="normal")
+    else:
+        show_button.config(state="disabled")
 
 def select_angle(event):
     global angle
     angle = angle_var.get()
 
-
 def select_graph(event):
     global graph
     graph = graph_var.get()
-
 
 def select_task(event):
     global task
     task = task_var.get()
 
-
 def show_graph():
-    import matplotlib.pyplot as plt
-
-    global trials, fstFile
+    global trials, file_path
 
     from_text = from_entry.get()
     from_value = float(from_text)
     to_text = to_entry.get()
     to_value = float(to_text)
 
-    fig = make_graph(fstFile, angle, graph, [from_value, to_value], WINDOW_LENGTH, POLYNOM_ORDER, task)
-
-    ################
+    fig = make_graph(file_path, angle, graph, [from_value, to_value], WINDOW_LENGTH, POLYNOM_ORDER, task)
     plt.show()
-    ############
 
     canvas.figure = fig
     canvas.draw()
-    # trials_button.config(state="normal")
 
-
-FONTSIZE = 14
 root = tk.Tk()
 matplotlib.use('TkAgg')
 
@@ -163,11 +108,10 @@ to_entry = ttk.Entry(frame, width=5, font=('TkDefaultFont', FONTSIZE))
 to_entry.insert(0, "100")
 to_entry.pack(side=tk.LEFT)
 
-
 # Show button
 show_button = ttk.Button(frame, text="Show", command=show_graph)
 show_button.pack(side=tk.LEFT)
-
+update_button_state()
 
 # Create a canvas to display the plot
 fig = matplotlib.figure.Figure()
