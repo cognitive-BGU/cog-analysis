@@ -3,8 +3,7 @@ from calculate import tasks_trails
 import os
 
 
-def save_as_csv(table, side):
-    filename = 'params.csv'
+def save_as_csv(table, side, filename):
     file_exists = os.path.isfile(filename)
     with open(filename, 'a', newline='') as file:
         writer = csv.writer(file)

@@ -10,7 +10,7 @@ from save_param_table import save_as_csv
 LINE_WIDTH = 1
 
 
-def make_parameters_graph(fig, side, angle_data, trials, time, time_interval, angle_velocity, dist_from_target):
+def make_parameters_graph(fig, side, angle_data, trials, time, time_interval, angle_velocity, dist_from_target, param_filename):
     # max_angels_indices = argrelextrema(np.array(angle_data), np.greater_equal, order=n)[0]
     # max_angels = [angle_data[i] for i in max_angels_indices]
     # print(trials)
@@ -46,7 +46,7 @@ def make_parameters_graph(fig, side, angle_data, trials, time, time_interval, an
     axs[1, 0].set_ylabel('angle/time [deg/sec]')
     axs[1, 1].bar(x_coords, min_distances, color='orange', label='Min Distance')
     axs[1, 1].set_ylabel('coordinate [#]')
-    save_as_csv(table, side)
+    save_as_csv(table, side, param_filename)
 
     for ax in axs[-1]:
         ax.set_xticks(x_coords)
@@ -147,7 +147,7 @@ def compare_sides(fig, filename, param='Min Distance'):
     df = pd.read_csv(filename)
     tasks = df['Task'].unique()
     colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
-    axs = fig.subplots(1, len(tasks), sharey=False)  # Set sharey to False
+    axs = fig.subplots(1, len(tasks), sharey=False)
 
     for ax, task, color in zip(axs, tasks, colors):
         data = df[df['Task'] == task]

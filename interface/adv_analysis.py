@@ -58,8 +58,7 @@ def load_trials_from_json(angle_velocity, trials_filename):
     return trials, max_v_indices
 
 
-def make_graph(filename, angle, graph, time_interval, task):
-    side = "LEFT" if angle == "Left" else "RIGHT"
+def make_graph(filename, side, graph, time_interval, task):
     fig = plt.figure(figsize=(13, 7))
     if graph == 'compare sides':
         return compare_sides(fig, filename)
@@ -113,9 +112,11 @@ def make_graph(filename, angle, graph, time_interval, task):
     if graph == 'corr elbow-shoulder':
         return make_ES_coor_graph(fig, waves)
 
+    directory = os.path.dirname(filename)
+    param_filename = os.path.join(directory, f'param.csv')
     if graph == 'parameters':
         return make_parameters_graph(fig, side, angle_data, trials, time, time_interval, angle_velocity,
-                                     dist_from_target)
+                                     dist_from_target, param_filename)
 
     # compare tasks
     tasks_avg = calculate_avg_task(waves)
@@ -127,6 +128,4 @@ def make_graph(filename, angle, graph, time_interval, task):
         return make_ES_coor_graph(fig, tasks_avg)
 
     if graph == 'compare parameters':
-        return make_parameters_graph(fig, angle_data, trials, time, time_interval, angle_velocity, dist_from_target)
-
-# make_graph("../2023-07-02_01-01-012D.xlsx", "LeftShoulderAngle", 0, [0, 0])
+        return make_parameters_graph(fig, angle_data, trials, time, time_interval, angle_velocity, dist_from_target, param_filename)
