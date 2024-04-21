@@ -50,6 +50,7 @@ def load_trials_from_json(angle_velocity):
         trials_data = [{'max': int(max_v), 'trial': trial} for max_v, trial in zip(max_v_indices, trials)]
         with open(json_file, 'w') as f:
             json.dump(trials_data, f, indent=4)
+    print(trials, max_v_indices)
     return trials, max_v_indices
 
 

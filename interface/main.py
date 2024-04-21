@@ -5,7 +5,11 @@ import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from adv_analysis import make_graph
 
-angle = "LeftShoulderAngle"
+# Savitzky–Golay filter parameters
+WINDOW_LENGTH = 101
+POLYNOM_ORDER = 3
+
+angle = "Left"
 graph = "values"
 task = "task 1"
 trials = []
@@ -88,18 +92,13 @@ def show_graph():
     import matplotlib.pyplot as plt
 
     global trials, fstFile
+
     from_text = from_entry.get()
-    to_text = to_entry.get()
-    window_length_text = window_length_entry.get()
-    polyorder_text = polyorder_entry.get()
-
-    # Convert the text to floating-point numbers or integers
     from_value = float(from_text)
+    to_text = to_entry.get()
     to_value = float(to_text)
-    window_length_value = int(window_length_text)
-    polyorder_value = int(polyorder_text)
 
-    fig = make_graph(fstFile, angle, graph, [from_value, to_value], window_length_value, polyorder_value, task)
+    fig = make_graph(fstFile, angle, graph, [from_value, to_value], WINDOW_LENGTH, POLYNOM_ORDER, task)
 
     ################
     plt.show()
@@ -107,7 +106,7 @@ def show_graph():
 
     canvas.figure = fig
     canvas.draw()
-    trials_button.config(state="normal")
+    # trials_button.config(state="normal")
 
 
 FONTSIZE = 14
@@ -128,8 +127,8 @@ select_file_button.pack(side=tk.LEFT)
 
 # Select angle dropdown
 angle_var = tk.StringVar(root)
-angle_var.set("LeftShoulderAngle")  # default value
-angle_options = ["LeftShoulderAngle", "LeftShoulderAngle", "RightShoulderAngle"]
+angle_var.set("Left")  # default value
+angle_options = ["Left", "Left", "Right"]
 angle_dropdown = ttk.OptionMenu(frame, angle_var, *angle_options, command=select_angle)
 angle_dropdown.pack(side=tk.LEFT)
 
@@ -164,29 +163,11 @@ to_entry = ttk.Entry(frame, width=5, font=('TkDefaultFont', FONTSIZE))
 to_entry.insert(0, "100")
 to_entry.pack(side=tk.LEFT)
 
-# Window length entry and label
-window_length_label = ttk.Label(frame, text="Window length:", font=('TkDefaultFont', FONTSIZE))
-window_length_label.pack(side=tk.LEFT)
-window_length_entry = ttk.Entry(frame, width=5, font=('TkDefaultFont', FONTSIZE))
-window_length_entry.insert(0, "101")
-window_length_entry.pack(side=tk.LEFT)
-
-# Polyorder entry and label
-polyorder_label = ttk.Label(frame, text="Polyorder:", font=('TkDefaultFont', FONTSIZE))
-polyorder_label.pack(side=tk.LEFT)
-polyorder_entry = ttk.Entry(frame, width=5, font=('TkDefaultFont', FONTSIZE))
-polyorder_entry.insert(0, "3")
-polyorder_entry.pack(side=tk.LEFT)
 
 # Show button
 show_button = ttk.Button(frame, text="Show", command=show_graph)
 show_button.pack(side=tk.LEFT)
 
-# Trials button
-trials_button = ttk.Button(frame, text="Trials", command=show_trials)
-if len(trials) == 0:
-    trials_button.config(state="disabled")
-trials_button.pack(side=tk.LEFT)
 
 # Create a canvas to display the plot
 fig = matplotlib.figure.Figure()

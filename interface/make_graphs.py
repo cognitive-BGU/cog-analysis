@@ -144,6 +144,7 @@ def make_ES_coor_graph(fig, waves):
 import seaborn as sns
 
 def compare_sides(fig, filename, param='Min Distance'):
+    print('filename:', filename)
     df = pd.read_csv(filename)
     tasks = df['Task'].unique()
     colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
