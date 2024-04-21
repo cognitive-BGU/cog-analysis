@@ -4,30 +4,29 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from adv_analysis import make_graph
-
-# Savitzky–Golay filter parameters
-WINDOW_LENGTH = 101
-POLYNOM_ORDER = 3
+from edit_trials import edit_trials
 
 FONTSIZE = 14
 
-angle = "Left"
+angle = "LEFT"
 graph = "values"
 task = "task 1"
 trials = []
-file_path = None
+filename = None
 
 def select_file():
-    global file_path, trials
-    file_path = filedialog.askopenfilename()
+    global filename, trials
+    filename = filedialog.askopenfilename()
     trials = []
     update_button_state()
 
 def update_button_state():
-    if file_path is not None:
+    if filename is not None:
         show_button.config(state="normal")
+        edit_trails_button.config(state="normal")
     else:
         show_button.config(state="disabled")
+        edit_trails_button.config(state="disabled")
 
 def select_angle(event):
     global angle
@@ -42,14 +41,10 @@ def select_task(event):
     task = task_var.get()
 
 def show_graph():
-    global trials, file_path
-
-    from_text = from_entry.get()
-    from_value = float(from_text)
-    to_text = to_entry.get()
-    to_value = float(to_text)
-
-    fig = make_graph(file_path, angle, graph, [from_value, to_value], WINDOW_LENGTH, POLYNOM_ORDER, task)
+    global trials, filename
+    from_value = float(from_entry.get())
+    to_value = float(to_entry.get())
+    fig = make_graph(filename, angle, graph, [from_value, to_value], task)
     plt.show()
 
     canvas.figure = fig
@@ -62,7 +57,6 @@ style = ttk.Style()
 style.configure('TButton', font=('TkDefaultFont', FONTSIZE), padding=10)
 style.configure('TMenubutton', font=('TkDefaultFont', FONTSIZE), padding=10)
 
-# Create frame to hold buttons and dropdowns
 frame = ttk.Frame(root)
 frame.pack()
 
@@ -72,8 +66,8 @@ select_file_button.pack(side=tk.LEFT)
 
 # Select angle dropdown
 angle_var = tk.StringVar(root)
-angle_var.set("Left")  # default value
-angle_options = ["Left", "Left", "Right"]
+angle_var.set("LEFT")  # default value
+angle_options = ["LEFT", "LEFT", "RIGHT"]
 angle_dropdown = ttk.OptionMenu(frame, angle_var, *angle_options, command=select_angle)
 angle_dropdown.pack(side=tk.LEFT)
 
@@ -111,6 +105,11 @@ to_entry.pack(side=tk.LEFT)
 # Show button
 show_button = ttk.Button(frame, text="Show", command=show_graph)
 show_button.pack(side=tk.LEFT)
+
+# Edit Trails button
+edit_trails_button = ttk.Button(frame, text="Edit Trials",
+                                command=lambda: edit_trials(filename, angle, [float(from_entry.get()), float(to_entry.get())]))
+edit_trails_button.pack(side=tk.LEFT)
 update_button_state()
 
 # Create a canvas to display the plot

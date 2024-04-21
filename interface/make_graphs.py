@@ -3,6 +3,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.signal import argrelextrema
 from scipy.stats import pearsonr
+import seaborn as sns
 
 from save_param_table import save_as_csv
 
@@ -141,7 +142,6 @@ def make_ES_coor_graph(fig, waves):
     return fig
 
 
-import seaborn as sns
 
 def compare_sides(fig, filename, param='Min Distance'):
     print('filename:', filename)

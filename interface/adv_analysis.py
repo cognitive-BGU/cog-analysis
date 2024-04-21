@@ -8,11 +8,16 @@ from calculate import *
 from dist_from_target import calculate_dist_from_target
 from make_graphs import *
 
+n = 300  # number of points to be checked before and after the local maximum
+
 LIM_ALL = [35, 50]
 LIM_STATIC = [0, 10]
-n = 300  # number of points to be checked before and after the local maximum
-data_dict = {}
 
+# Savitzky–Golay filter parameters
+WINDOW_LENGTH = 101
+POLYNOM_ORDER = 3
+
+data_dict = {}
 
 def get_data_from_excel(side, filename):
     to_import = ["T (sec)"]
@@ -28,12 +33,11 @@ def get_data_from_excel(side, filename):
     return data
 
 
-def get_mp_data(filename, side, time_interval, window_length, poly_order):
-    key = (filename, side, window_length, poly_order)
+def get_mp_data(filename, side, time_interval):
+    key = (filename, side, WINDOW_LENGTH, POLYNOM_ORDER)
     if key not in data_dict:
         data = get_data_from_excel(side, filename)
-        if window_length > 0 and poly_order > 0:
-            data_dict[key] = clean_data(data, window_length, poly_order)
+        data_dict[key] = clean_data(data, WINDOW_LENGTH, POLYNOM_ORDER)
     return data_dict[key]
 
 
@@ -54,13 +58,13 @@ def load_trials_from_json(angle_velocity):
     return trials, max_v_indices
 
 
-def make_graph(filename, angle, graph, time_interval, window_length, poly_order, task):
-    side = "LEFT" if angle == "LeftShoulderAngle" else "RIGHT"
+def make_graph(filename, angle, graph, time_interval, task):
+    side = "LEFT" if angle == "Left" else "RIGHT"
     fig = plt.figure(figsize=(13, 7))
     if graph == 'compare sides':
         return compare_sides(fig, filename)
 
-    data = get_mp_data(filename, side, time_interval, window_length, poly_order)
+    data = get_mp_data(filename, side, time_interval)
     angle_data = make_vector_angle(data, side, ['WRIST', 'SHOULDER', 'HIP'])
     time = list(data['T (sec)'].values)
     angle_velocity = calculate_velocity(time, angle_data)
