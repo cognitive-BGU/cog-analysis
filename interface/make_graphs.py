@@ -98,7 +98,7 @@ def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_fro
     ax2.scatter(times_to_draw, v_data_to_draw, c='r', marker="X")
     ax2.legend()
 
-    # angle
+    # shoulder angle
     ax3.set_title(f'Shoulder Angle')
     ax3.set_xlabel('Time [sec]')
     ax3.set_ylabel('Angle [deg]')

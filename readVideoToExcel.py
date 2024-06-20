@@ -29,10 +29,12 @@ for vid_file in os.listdir(folder):
 
     # Write header row
     worksheet.write_row(0, 0, ["T (sec)"] +
-                        [f"{landmark.name} X" for landmark in mp_pose.PoseLandmark] + [
-                            f"{landmark.name} Y" for landmark in mp_pose.PoseLandmark] +
+                        [f"{landmark.name} X" for landmark in mp_pose.PoseLandmark] +
+                        [f"{landmark.name} Y" for landmark in mp_pose.PoseLandmark] +
+                        [f"{landmark.name} Z" for landmark in mp_pose.PoseLandmark] +
                         [f"{landmark.name} X" for landmark in mp_hands.HandLandmark] +
-                        [f"{landmark.name} Y" for landmark in mp_hands.HandLandmark])
+                        [f"{landmark.name} Y" for landmark in mp_hands.HandLandmark] +
+                        [f"{landmark.name} Z" for landmark in mp_hands.HandLandmark])
 
     cap = cv2.VideoCapture(folder + '\\' + vid_file)
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -72,17 +74,15 @@ for vid_file in os.listdir(folder):
             pose_landmarks = pose_results.pose_landmarks.landmark
 
             # Write data row
-            data_row += [landmark.x for landmark in pose_landmarks] + [landmark.y for landmark in pose_landmarks]
+            data_row += [landmark.x for landmark in pose_landmarks] + [landmark.y for landmark in pose_landmarks] + [landmark.z for landmark in pose_landmarks]
 
         if hands_results.multi_hand_landmarks:
             for hand_landmarks in hands_results.multi_hand_landmarks:
-                hand_data_row = data_row + [landmark.x for landmark in hand_landmarks.landmark] + [landmark.y for
-                                                                                                   landmark in
-                                                                                                   hand_landmarks.landmark]
+                hand_data_row = data_row + [landmark.x for landmark in hand_landmarks.landmark] + [landmark.y for landmark in hand_landmarks.landmark] + [landmark.z for landmark in hand_landmarks.landmark]
                 worksheet.write_row(row, 0, hand_data_row)
                 row += 1
         else:
-            data_row += [None] * (len(mp_hands.HandLandmark) * 2)
+            data_row += [None] * (len(mp_hands.HandLandmark) * 3)
             worksheet.write_row(row, 0, data_row)
             row += 1
 
