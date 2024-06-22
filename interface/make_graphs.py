@@ -57,8 +57,8 @@ def make_parameters_graph(fig, side, angle_data, trials, time, time_interval, an
     return fig
 
 
-def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_from_target, angle_data, time_interval):
-    ax1, ax2, ax3 = fig.subplots(3, 1)
+def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_from_target, angle_data, elbow_angle_data, time_interval):
+    ax1, ax2, ax3, ax4 = fig.subplots(4, 1)
     max_v = [angle_velocity[i] for i in max_v_indices]
     max_v_times = [time[i] for i in max_v_indices]
 
@@ -66,12 +66,15 @@ def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_fro
     v_data_to_draw = []
     l_data_to_draw = []
     angle_data_to_draw = []
+    elbow_angle_data_to_draw = []
     for interval in trials:
         for index in interval:
             times_to_draw.append(time[index])
             v_data_to_draw.append(angle_velocity[index])
             l_data_to_draw.append(dist_from_target[index])
             angle_data_to_draw.append(angle_data[index])
+            elbow_angle_data_to_draw.append(elbow_angle_data[index])
+
 
     # location
     ax1.set_title(f'Coordinate Distant from the target')
@@ -111,6 +114,18 @@ def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_fro
     ax3.scatter(max_v_times, max_angle_val, c='g')
     ax3.scatter(times_to_draw, angle_data_to_draw, c='r', marker="X")
     ax3.legend()
+
+    # elbow angle
+    ax4.set_title(f'Elbow Angle')
+    ax4.set_xlabel('Time [sec]')
+    ax4.set_ylabel('Angle [deg]')
+    ax4.plot(time, elbow_angle_data, label="elbow angle", linewidth=LINE_WIDTH)
+    ax4.set_xlim(time_interval)
+    max_elbow_angle_val = [elbow_angle_data[i] for i in max_v_indices]
+    ax4.scatter(max_v_times, max_elbow_angle_val, c='g')
+    ax4.scatter(times_to_draw, elbow_angle_data_to_draw, c='r', marker="X")
+    ax4.legend()
+
     return fig
 
 

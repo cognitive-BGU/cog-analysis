@@ -14,7 +14,7 @@ LIM_ALL = [35, 50]
 LIM_STATIC = [0, 10]
 
 # Savitzky–Golay filter parameters
-WINDOW_LENGTH = 101
+WINDOW_LENGTH = 150
 POLYNOM_ORDER = 3
 
 data_dict = {}
@@ -88,6 +88,7 @@ def make_graph(filename, side, graph, time_interval, task):
     time = list(data['T (sec)'].values)
     angle_velocity = calculate_velocity(time, angle_data)
     dist_from_target = calculate_dist_from_target(data, side)
+    elbow_angle_data = make_vector_angle(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
 
     directory = os.path.dirname(filename)
     trials_filename = os.path.join(directory, f'{side}.json')
@@ -95,7 +96,7 @@ def make_graph(filename, side, graph, time_interval, task):
 
     if graph == 'values':
         return make_values_graph(fig, trials, max_v_indices, angle_velocity, time,
-                                 dist_from_target, angle_data, time_interval)
+                                 dist_from_target, angle_data, elbow_angle_data, time_interval)
 
     elbow_angle_data = make_vector_angle(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
     waves = []
