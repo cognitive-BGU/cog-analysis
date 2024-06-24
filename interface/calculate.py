@@ -3,7 +3,8 @@ import numpy as np
 tasks_trails = {
     'apple': [0, 1, 2, 3, 4, 5],
     'hat': [6, 7, 8, 9],
-    'parrot': [10, 11, 12, 13]
+    'parrot': [10, 11, 12, 13],
+    'bird': [14, 15, 16, 17]
 }
 
 
@@ -95,6 +96,21 @@ def calculate_avg_task(waves):
         }
         tasks_avg.append(avg_wave)
     return tasks_avg
+
+
+def calculate_rib_point(data, side, frame):
+    hip = {
+        'x': data[f"{side}_HIP X"].iloc[frame],
+        'y': data[f"{side}_HIP Y"].iloc[frame],
+        'z': data[f"{side}_HIP Z"].iloc[frame]
+    }
+    shoulder = {
+        'x': data[f"{side}_SHOULDER X"].iloc[frame],
+        'y': data[f"{side}_SHOULDER Y"].iloc[frame],
+        'z': data[f"{side}_SHOULDER Z"].iloc[frame]
+    }
+    rib = calculate_center_3D(hip, shoulder)
+    return rib
 
 
 # def calculate_dist_from_target(data, side):

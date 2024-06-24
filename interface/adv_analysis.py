@@ -56,21 +56,6 @@ def load_trials_from_json(angle_velocity, trials_filename):
     return trials, max_v_indices
 
 
-def calculate_rib_point(data, side, frame):
-    hip = {
-        'x': data[f"{side}_HIP X"].iloc[frame],
-        'y': data[f"{side}_HIP Y"].iloc[frame],
-        'z': data[f"{side}_HIP Z"].iloc[frame]
-    }
-    shoulder = {
-        'x': data[f"{side}_SHOULDER X"].iloc[frame],
-        'y': data[f"{side}_SHOULDER Y"].iloc[frame],
-        'z': data[f"{side}_SHOULDER Z"].iloc[frame]
-    }
-    rib = calculate_center_3D(hip, shoulder)
-    return rib
-
-
 def make_graph(filename, side, graph, time_interval, task):
     fig = plt.figure(figsize=(13, 7))
     if graph == 'compare sides':
