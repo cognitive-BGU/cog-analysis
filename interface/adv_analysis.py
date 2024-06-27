@@ -47,6 +47,9 @@ def load_trials_from_json(angle_velocity, trials_filename):
             trials_data = json.load(f)
         trials = [[int(j) for j in item['trial']] for item in trials_data]
         max_v_indices = [item['max'] for item in trials_data]
+        # Ensure indices are within bounds
+        max_v_indices = [index for index in max_v_indices if index < len(angle_velocity)]
+        trials = [[start, end] for start, end in trials if end < len(angle_velocity)]
     except FileNotFoundError:
         max_v_indices = argrelextrema(np.array(angle_velocity), np.greater_equal, order=n)[0]
         trials = [[int(j) for j in find_interval(angle_velocity, index)] for index in max_v_indices]
@@ -54,6 +57,7 @@ def load_trials_from_json(angle_velocity, trials_filename):
         with open(trials_filename, 'w') as f:
             json.dump(trials_data, f, indent=4)
     return trials, max_v_indices
+
 
 
 def make_graph(filename, side, graph, time_interval, task):

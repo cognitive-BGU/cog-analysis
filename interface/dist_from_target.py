@@ -23,7 +23,7 @@ def calculate_center(data, landmark1, landmark2, i):
 
 
 def calculate_target_location(data, side):
-    tasks_intervals = [[100, 7300], [7400, 10500], [10400, 14100], [14200, 17000], [17100, 20000]]  # Added interval for bird
+    tasks_intervals = [[100, 7300], [7400, 10500], [10400, 14100], [14200, 17000], [17100, 20000]]
     task_location = []
 
     for i in range(len(data)):

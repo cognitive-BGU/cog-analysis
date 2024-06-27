@@ -84,7 +84,7 @@ graph_dropdown.pack(side=tk.LEFT)
 # Select task dropdown
 task_var = tk.StringVar(root)
 task_var.set("task 1")  # default value
-task_options = ["task 1", "task 1", "task 2", "task 3", "task 4"]
+task_options = ["task 1", "task 2", "task 3", "task 4", "task 5"]
 task_dropdown = ttk.OptionMenu(frame, task_var, *task_options, command=select_task)
 task_dropdown.pack(side=tk.LEFT)
 

@@ -69,11 +69,16 @@ def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_fro
     elbow_angle_data_to_draw = []
     for interval in trials:
         for index in interval:
-            times_to_draw.append(time[index])
-            v_data_to_draw.append(angle_velocity[index])
-            l_data_to_draw.append(dist_from_target[index])
-            angle_data_to_draw.append(angle_data[index])
-            elbow_angle_data_to_draw.append(elbow_angle_data[index])
+            if index < len(time):
+                times_to_draw.append(time[index])
+            if index < len(angle_velocity):
+                v_data_to_draw.append(angle_velocity[index])
+            if index < len(dist_from_target):
+                l_data_to_draw.append(dist_from_target[index])
+            if index < len(angle_data):
+                angle_data_to_draw.append(angle_data[index])
+            if index < len(elbow_angle_data):
+                elbow_angle_data_to_draw.append(elbow_angle_data[index])
 
 
     # location
