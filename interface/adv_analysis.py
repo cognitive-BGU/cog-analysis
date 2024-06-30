@@ -73,11 +73,11 @@ def make_graph(filename, side, graph, time_interval, task):
     data[f"{side}_RIB Y"] = [rib['y'] for rib in ribs]
     data[f"{side}_RIB Z"] = [rib['z'] for rib in ribs]
 
-    angle_data = make_vector_angle(data, side, ['ELBOW', 'SHOULDER', 'RIB'])
+    angle_data = make_vector_angle3D(data, side, ['ELBOW', 'SHOULDER', 'RIB'])
     time = list(data['T (sec)'].values)
     angle_velocity = calculate_velocity(time, angle_data)
     dist_from_target = calculate_dist_from_target(data, side)
-    elbow_angle_data = make_vector_angle(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
+    elbow_angle_data = make_vector_angle2D(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
 
     directory = os.path.dirname(filename)
     trials_filename = os.path.join(directory, f'{side}.json')
@@ -87,7 +87,7 @@ def make_graph(filename, side, graph, time_interval, task):
         return make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time,
                                  dist_from_target, angle_data, elbow_angle_data, time_interval, side)
 
-    elbow_angle_data = make_vector_angle(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
+    elbow_angle_data = make_vector_angle2D(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
     waves = []
     for interval in trials:
         if time[interval[0]] > time_interval[0] and time[interval[1]] < time_interval[1]:

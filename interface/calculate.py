@@ -31,8 +31,18 @@ def find_end(data, index):
 def find_interval(data, index):
     return [find_start(data, index), find_end(data, index)]
 
+def calculate_angle2D(a, b, c):
+    a = np.array(a)
+    b = np.array(b)
+    c = np.array(c)
 
-def calculate_angle(a, b, c):
+    radians = np.arctan2(c[1] - b[1], c[0] - b[0]) - np.arctan2(a[1] - b[1], a[0] - b[0])
+    angle = np.abs(radians * 180.0 / np.pi)
+    if angle > 180.0:
+        angle = 360 - angle
+    return angle
+
+def calculate_angle3D(a, b, c):
     # Calculate the vectors AB and BC
     ab = np.array([a[0] - b[0], a[1] - b[1], a[2] - b[2]])
     bc = np.array([c[0] - b[0], c[1] - b[1], c[2] - b[2]])
@@ -49,8 +59,8 @@ def calculate_angle(a, b, c):
     return angle
 
 
-def make_vector_angle(data, side, points):
-    return [calculate_angle(
+def make_vector_angle3D(data, side, points):
+    return [calculate_angle3D(
         [data[f"{side}_{points[0]} X"][frame], data[f"{side}_{points[0]} Y"][frame],
          data[f"{side}_{points[0]} Z"][frame]],
         [data[f"{side}_{points[1]} X"][frame], data[f"{side}_{points[1]} Y"][frame],
@@ -58,6 +68,14 @@ def make_vector_angle(data, side, points):
         [data[f"{side}_{points[2]} X"][frame], data[f"{side}_{points[2]} Y"][frame],
          data[f"{side}_{points[2]} Z"][frame]]
     ) for frame in range(len(data))]
+
+def make_vector_angle2D(data, side, points):
+    return [calculate_angle2D(
+        [data[f"{side}_{points[0]} X"][frame], data[f"{side}_{points[0]} Y"][frame]],
+        [data[f"{side}_{points[1]} X"][frame], data[f"{side}_{points[1]} Y"][frame]],
+        [data[f"{side}_{points[2]} X"][frame], data[f"{side}_{points[2]} Y"][frame]]
+    ) for frame in range(len(data))]
+
 
 def calculate_center_3D(pose1, pose2):
     center = {
