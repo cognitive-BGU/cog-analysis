@@ -84,8 +84,8 @@ def make_graph(filename, side, graph, time_interval, task):
     trials, max_v_indices = load_trials_from_json(angle_velocity, trials_filename)
 
     if graph == 'values':
-        return make_values_graph(fig, trials, max_v_indices, angle_velocity, time,
-                                 dist_from_target, angle_data, elbow_angle_data, time_interval)
+        return make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time,
+                                 dist_from_target, angle_data, elbow_angle_data, time_interval, side)
 
     elbow_angle_data = make_vector_angle(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
     waves = []

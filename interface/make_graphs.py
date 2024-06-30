@@ -57,8 +57,8 @@ def make_parameters_graph(fig, side, angle_data, trials, time, time_interval, an
     return fig
 
 
-def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_from_target, angle_data, elbow_angle_data, time_interval):
-    ax1, ax2, ax3, ax4 = fig.subplots(4, 1)
+def make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time, dist_from_target, angle_data, elbow_angle_data, time_interval, side):
+    ax1, ax2, ax3, ax4, ax5 = fig.subplots(5, 1)
     max_v = [angle_velocity[i] for i in max_v_indices]
     max_v_times = [time[i] for i in max_v_indices]
 
@@ -67,6 +67,8 @@ def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_fro
     l_data_to_draw = []
     angle_data_to_draw = []
     elbow_angle_data_to_draw = []
+    wrist_z_to_draw = []
+
     for interval in trials:
         for index in interval:
             if index < len(time):
@@ -79,6 +81,8 @@ def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_fro
                 angle_data_to_draw.append(angle_data[index])
             if index < len(elbow_angle_data):
                 elbow_angle_data_to_draw.append(elbow_angle_data[index])
+            if index < len(data[f'{side}_WRIST Z']):
+                wrist_z_to_draw.append(data[f'{side}_WRIST Z'][index])
 
 
     # location
@@ -130,6 +134,15 @@ def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_fro
     ax4.scatter(max_v_times, max_elbow_angle_val, c='g')
     ax4.scatter(times_to_draw, elbow_angle_data_to_draw, c='r', marker="X")
     ax4.legend()
+
+    # Plot wrist Z coordinate
+    ax5.set_title('Wrist Z Coordinate')
+    ax5.set_xlabel('Time [sec]')
+    ax5.set_ylabel('Z Coordinate')
+    ax5.plot(time, data[f'{side}_WRIST Z'], label="wrist Z", linewidth=LINE_WIDTH)
+    ax5.set_xlim(time_interval)
+    ax5.scatter(times_to_draw, wrist_z_to_draw, c='r', marker="X", label="trial")
+    ax5.legend()
 
     return fig
 
