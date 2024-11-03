@@ -7,8 +7,10 @@ import seaborn as sns
 
 from save_param_table import save_as_csv
 
-LINE_WIDTH = 1
+import numpy as np
+from matplotlib import pyplot as plt
 
+LINE_WIDTH = 1
 
 def make_parameters_graph(fig, side, angle_data, trials, time, time_interval, angle_velocity, dist_from_target, param_filename):
     # max_angels_indices = argrelextrema(np.array(angle_data), np.greater_equal, order=n)[0]
@@ -56,9 +58,13 @@ def make_parameters_graph(fig, side, angle_data, trials, time, time_interval, an
         ax.legend()
     return fig
 
+def moving_average(data, window_size):
+    return np.convolve(data, np.ones(window_size) / window_size, mode='valid')
+
+
 
 def make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time, dist_from_target, angle_data, elbow_angle_data, time_interval, side):
-    ax1, ax2, ax3, ax4, ax5 = fig.subplots(5, 1)
+    ax1, ax2, ax3, ax4 = fig.subplots(4, 1)
     max_v = [angle_velocity[i] for i in max_v_indices]
     max_v_times = [time[i] for i in max_v_indices]
 
@@ -135,15 +141,6 @@ def make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time, di
     ax4.scatter(times_to_draw, elbow_angle_data_to_draw, c='r', marker="X")
     ax4.legend()
 
-    # Plot wrist Z coordinate
-    ax5.set_title('Wrist Z Coordinate')
-    ax5.set_xlabel('Time [sec]')
-    ax5.set_ylabel('Z Coordinate')
-    ax5.plot(time, data[f'{side}_WRIST Z'], label="wrist Z", linewidth=LINE_WIDTH)
-    ax5.set_xlim(time_interval)
-    ax5.scatter(times_to_draw, wrist_z_to_draw, c='r', marker="X", label="trial")
-    ax5.legend()
-
     return fig
 
 
@@ -173,7 +170,6 @@ def make_ES_coor_graph(fig, waves):
 
     fig.tight_layout(pad=1.0)
     return fig
-
 
 
 def compare_sides(fig, filename, param='Min Distance'):

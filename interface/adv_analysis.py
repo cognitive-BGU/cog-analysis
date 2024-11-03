@@ -14,7 +14,7 @@ LIM_ALL = [35, 50]
 LIM_STATIC = [0, 10]
 
 # Savitzky–Golay filter parameters
-WINDOW_LENGTH = 150
+WINDOW_LENGTH = 151
 POLYNOM_ORDER = 3
 
 data_dict = {}
@@ -84,6 +84,7 @@ def make_graph(filename, side, graph, time_interval, task):
     trials, max_v_indices = load_trials_from_json(angle_velocity, trials_filename)
 
     if graph == 'values':
+        window_size = 5  # You can adjust the window size here if needed
         return make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time,
                                  dist_from_target, angle_data, elbow_angle_data, time_interval, side)
 
