@@ -3,7 +3,8 @@ import numpy as np
 tasks_trails = {
     'apple': [0, 1, 2, 3, 4, 5],
     'hat': [6, 7, 8, 9],
-    'parrot': [10, 11, 12, 13]
+    'parrot': [10, 11, 12, 13],
+    'bird': [14, 15, 16, 17]
 }
 
 
@@ -30,8 +31,7 @@ def find_end(data, index):
 def find_interval(data, index):
     return [find_start(data, index), find_end(data, index)]
 
-
-def calculate_angle(a, b, c):
+def calculate_angle2D(a, b, c):
     a = np.array(a)
     b = np.array(b)
     c = np.array(c)
@@ -42,20 +42,53 @@ def calculate_angle(a, b, c):
         angle = 360 - angle
     return angle
 
+def calculate_angle3D(a, b, c):
+    # Calculate the vectors AB and BC
+    ab = np.array([a[0] - b[0], a[1] - b[1], a[2] - b[2]])
+    bc = np.array([c[0] - b[0], c[1] - b[1], c[2] - b[2]])
 
-def make_vector_angle(data, side, points):
-    return [calculate_angle(
+    # Calculate the dot product and magnitudes of the vectors
+    dot_product = np.dot(ab, bc)
+    magnitude_ab = np.linalg.norm(ab)
+    magnitude_bc = np.linalg.norm(bc)
+
+    # Calculate the angle in radians and then convert to degrees
+    angle = np.arccos(dot_product / (magnitude_ab * magnitude_bc))
+    angle = np.degrees(angle)
+
+    return angle
+
+
+def make_vector_angle3D(data, side, points):
+    return [calculate_angle3D(
+        [data[f"{side}_{points[0]} X"][frame], data[f"{side}_{points[0]} Y"][frame],
+         data[f"{side}_{points[0]} Z"][frame]],
+        [data[f"{side}_{points[1]} X"][frame], data[f"{side}_{points[1]} Y"][frame],
+         data[f"{side}_{points[1]} Z"][frame]],
+        [data[f"{side}_{points[2]} X"][frame], data[f"{side}_{points[2]} Y"][frame],
+         data[f"{side}_{points[2]} Z"][frame]]
+    ) for frame in range(len(data))]
+
+def make_vector_angle2D(data, side, points):
+    return [calculate_angle2D(
         [data[f"{side}_{points[0]} X"][frame], data[f"{side}_{points[0]} Y"][frame]],
         [data[f"{side}_{points[1]} X"][frame], data[f"{side}_{points[1]} Y"][frame]],
         [data[f"{side}_{points[2]} X"][frame], data[f"{side}_{points[2]} Y"][frame]]
     ) for frame in range(len(data))]
 
 
+def calculate_center_3D(pose1, pose2):
+    center = {
+        'x': (pose1['x'] + pose2['x']) / 2,
+        'y': (pose1['y'] + pose2['y']) / 2,
+        'z': (pose1['z'] + pose2['z']) / 2
+    }
+    return center
+
 def calculate_velocity(time, angle_data):
     time_diff = np.diff(time)
     time_diff[time_diff == 0] = 0.01
     return np.diff(angle_data) / time_diff
-
 
 
 def clean_data(data, window_length, polyorder):
@@ -68,12 +101,10 @@ def clean_data(data, window_length, polyorder):
 
 
 def calculate_avg_task(waves):
-
     tasks_avg = []
     for task in tasks_trails:
         task_waves = [waves[i] for i in tasks_trails[task]]
         min_length = min(len(wave['l']) for wave in task_waves)
-        # min_length_ti = min(len(wave['t-i']) for wave in task_waves)
         avg_wave = {
             'l': [sum(wave['l'][i] for wave in task_waves) / len(task_waves) for i in range(min_length)],
             'v': [sum(wave['v'][i] for wave in task_waves) / len(task_waves) for i in range(min_length)],
@@ -83,6 +114,21 @@ def calculate_avg_task(waves):
         }
         tasks_avg.append(avg_wave)
     return tasks_avg
+
+
+def calculate_rib_point(data, side, frame):
+    hip = {
+        'x': data[f"{side}_HIP X"].iloc[frame],
+        'y': data[f"{side}_HIP Y"].iloc[frame],
+        'z': data[f"{side}_HIP Z"].iloc[frame]
+    }
+    shoulder = {
+        'x': data[f"{side}_SHOULDER X"].iloc[frame],
+        'y': data[f"{side}_SHOULDER Y"].iloc[frame],
+        'z': data[f"{side}_SHOULDER Z"].iloc[frame]
+    }
+    rib = calculate_center_3D(hip, shoulder)
+    return rib
 
 
 # def calculate_dist_from_target(data, side):

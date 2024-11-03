@@ -6,9 +6,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 from adv_analysis import get_mp_data, load_trials_from_json
-from calculate import make_vector_angle, calculate_velocity
+from calculate import make_vector_angle3D, calculate_velocity
 from dist_from_target import calculate_dist_from_target
 from make_graphs import LINE_WIDTH
+from calculate import *
+
 
 FONTSIZE = 14
 
@@ -25,7 +27,14 @@ def edit_trials(filename, side, time_interval):
         fig = plt.figure(figsize=(13, 7))
 
         data = get_mp_data(filename, side, time_interval)
-        angle_data = make_vector_angle(data, side, ['WRIST', 'SHOULDER', 'HIP'])
+
+        ribs = [calculate_rib_point(data, side, frame) for frame in range(len(data))]
+
+        data[f"{side}_RIB X"] = [rib['x'] for rib in ribs]
+        data[f"{side}_RIB Y"] = [rib['y'] for rib in ribs]
+        data[f"{side}_RIB Z"] = [rib['z'] for rib in ribs]
+
+        angle_data = make_vector_angle3D(data, side, ['ELBOW', 'SHOULDER', 'RIB'])
         time = list(data['T (sec)'].values)
         angle_velocity = calculate_velocity(time, angle_data)
         dist_from_target = calculate_dist_from_target(data, side)
@@ -123,7 +132,7 @@ def edit_trials(filename, side, time_interval):
                         break
 
     data = get_mp_data(filename, side, time_interval)
-    angle_data = make_vector_angle(data, side, ['WRIST', 'SHOULDER', 'HIP'])
+    angle_data = make_vector_angle3D(data, side, ['ELBOW', 'SHOULDER', 'HIP'])
     time = list(data['T (sec)'].values)
     angle_velocity = calculate_velocity(time, angle_data)
     dist_from_target = calculate_dist_from_target(data, side)

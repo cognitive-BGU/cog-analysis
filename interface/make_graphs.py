@@ -7,8 +7,10 @@ import seaborn as sns
 
 from save_param_table import save_as_csv
 
-LINE_WIDTH = 1
+import numpy as np
+from matplotlib import pyplot as plt
 
+LINE_WIDTH = 1
 
 def make_parameters_graph(fig, side, angle_data, trials, time, time_interval, angle_velocity, dist_from_target, param_filename):
     # max_angels_indices = argrelextrema(np.array(angle_data), np.greater_equal, order=n)[0]
@@ -56,9 +58,13 @@ def make_parameters_graph(fig, side, angle_data, trials, time, time_interval, an
         ax.legend()
     return fig
 
+def moving_average(data, window_size):
+    return np.convolve(data, np.ones(window_size) / window_size, mode='valid')
 
-def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_from_target, angle_data, time_interval):
-    ax1, ax2, ax3 = fig.subplots(3, 1)
+
+
+def make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time, dist_from_target, angle_data, elbow_angle_data, time_interval, side):
+    ax1, ax2, ax3, ax4 = fig.subplots(4, 1)
     max_v = [angle_velocity[i] for i in max_v_indices]
     max_v_times = [time[i] for i in max_v_indices]
 
@@ -66,12 +72,24 @@ def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_fro
     v_data_to_draw = []
     l_data_to_draw = []
     angle_data_to_draw = []
+    elbow_angle_data_to_draw = []
+    wrist_z_to_draw = []
+
     for interval in trials:
         for index in interval:
-            times_to_draw.append(time[index])
-            v_data_to_draw.append(angle_velocity[index])
-            l_data_to_draw.append(dist_from_target[index])
-            angle_data_to_draw.append(angle_data[index])
+            if index < len(time):
+                times_to_draw.append(time[index])
+            if index < len(angle_velocity):
+                v_data_to_draw.append(angle_velocity[index])
+            if index < len(dist_from_target):
+                l_data_to_draw.append(dist_from_target[index])
+            if index < len(angle_data):
+                angle_data_to_draw.append(angle_data[index])
+            if index < len(elbow_angle_data):
+                elbow_angle_data_to_draw.append(elbow_angle_data[index])
+            if index < len(data[f'{side}_WRIST Z']):
+                wrist_z_to_draw.append(data[f'{side}_WRIST Z'][index])
+
 
     # location
     ax1.set_title(f'Coordinate Distant from the target')
@@ -98,7 +116,7 @@ def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_fro
     ax2.scatter(times_to_draw, v_data_to_draw, c='r', marker="X")
     ax2.legend()
 
-    # angle
+    # shoulder angle
     ax3.set_title(f'Shoulder Angle')
     ax3.set_xlabel('Time [sec]')
     ax3.set_ylabel('Angle [deg]')
@@ -111,6 +129,18 @@ def make_values_graph(fig, trials, max_v_indices, angle_velocity, time, dist_fro
     ax3.scatter(max_v_times, max_angle_val, c='g')
     ax3.scatter(times_to_draw, angle_data_to_draw, c='r', marker="X")
     ax3.legend()
+
+    # elbow angle
+    ax4.set_title(f'Elbow Angle')
+    ax4.set_xlabel('Time [sec]')
+    ax4.set_ylabel('Angle [deg]')
+    ax4.plot(time, elbow_angle_data, label="elbow angle", linewidth=LINE_WIDTH)
+    ax4.set_xlim(time_interval)
+    max_elbow_angle_val = [elbow_angle_data[i] for i in max_v_indices]
+    ax4.scatter(max_v_times, max_elbow_angle_val, c='g')
+    ax4.scatter(times_to_draw, elbow_angle_data_to_draw, c='r', marker="X")
+    ax4.legend()
+
     return fig
 
 
@@ -140,7 +170,6 @@ def make_ES_coor_graph(fig, waves):
 
     fig.tight_layout(pad=1.0)
     return fig
-
 
 
 def compare_sides(fig, filename, param='Min Distance'):

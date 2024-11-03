@@ -1,6 +1,5 @@
 import json
 import os
-
 import pandas as pd
 from scipy.signal import argrelextrema
 from scipy.stats import pearsonr
@@ -15,22 +14,22 @@ LIM_ALL = [35, 50]
 LIM_STATIC = [0, 10]
 
 # Savitzky–Golay filter parameters
-WINDOW_LENGTH = 101
+WINDOW_LENGTH = 151
 POLYNOM_ORDER = 3
 
 data_dict = {}
 
+
 def get_data_from_excel(side, filename):
     to_import = ["T (sec)"]
-    for coor in ["X", "Y"]:
-        to_import.append("LEFT_SHOULDER " + coor)
-        to_import.append("RIGHT_SHOULDER " + coor)
-        to_import.append(side + "_HIP " + coor)
-        to_import.append(side + "_ELBOW " + coor)
-        to_import.append(side + "_WRIST " + coor)
+    for coor in ["X", "Y", "Z"]:
+        to_import.append(f"LEFT_SHOULDER {coor}")
+        to_import.append(f"RIGHT_SHOULDER {coor}")
+        to_import.append(f"{side}_HIP {coor}")
+        to_import.append(f"{side}_ELBOW {coor}")
+        to_import.append(f"{side}_WRIST {coor}")
 
     data = pd.read_excel(filename, usecols=to_import)
-    # data = data[(data["T (sec)"] >= time_interval[0]) & (data["T (sec)"] <= time_interval[1])]
     return data
 
 
@@ -43,12 +42,14 @@ def get_mp_data(filename, side, time_interval):
 
 
 def load_trials_from_json(angle_velocity, trials_filename):
-
     try:
         with open(trials_filename, 'r') as f:
             trials_data = json.load(f)
         trials = [[int(j) for j in item['trial']] for item in trials_data]
         max_v_indices = [item['max'] for item in trials_data]
+        # Ensure indices are within bounds
+        max_v_indices = [index for index in max_v_indices if index < len(angle_velocity)]
+        trials = [[start, end] for start, end in trials if end < len(angle_velocity)]
     except FileNotFoundError:
         max_v_indices = argrelextrema(np.array(angle_velocity), np.greater_equal, order=n)[0]
         trials = [[int(j) for j in find_interval(angle_velocity, index)] for index in max_v_indices]
@@ -58,26 +59,36 @@ def load_trials_from_json(angle_velocity, trials_filename):
     return trials, max_v_indices
 
 
+
 def make_graph(filename, side, graph, time_interval, task):
     fig = plt.figure(figsize=(13, 7))
     if graph == 'compare sides':
         return compare_sides(fig, filename)
 
     data = get_mp_data(filename, side, time_interval)
-    angle_data = make_vector_angle(data, side, ['WRIST', 'SHOULDER', 'HIP'])
+
+    ribs = [calculate_rib_point(data, side, frame) for frame in range(len(data))]
+
+    data[f"{side}_RIB X"] = [rib['x'] for rib in ribs]
+    data[f"{side}_RIB Y"] = [rib['y'] for rib in ribs]
+    data[f"{side}_RIB Z"] = [rib['z'] for rib in ribs]
+
+    angle_data = make_vector_angle3D(data, side, ['ELBOW', 'SHOULDER', 'RIB'])
     time = list(data['T (sec)'].values)
     angle_velocity = calculate_velocity(time, angle_data)
     dist_from_target = calculate_dist_from_target(data, side)
+    elbow_angle_data = make_vector_angle2D(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
 
     directory = os.path.dirname(filename)
     trials_filename = os.path.join(directory, f'{side}.json')
     trials, max_v_indices = load_trials_from_json(angle_velocity, trials_filename)
 
     if graph == 'values':
-        return make_values_graph(fig, trials, max_v_indices, angle_velocity, time,
-                                 dist_from_target, angle_data, time_interval)
+        window_size = 5  # You can adjust the window size here if needed
+        return make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time,
+                                 dist_from_target, angle_data, elbow_angle_data, time_interval, side)
 
-    elbow_angle_data = make_vector_angle(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
+    elbow_angle_data = make_vector_angle2D(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
     waves = []
     for interval in trials:
         if time[interval[0]] > time_interval[0] and time[interval[1]] < time_interval[1]:
@@ -93,7 +104,6 @@ def make_graph(filename, side, graph, time_interval, task):
         return make_all_trials_graph(fig, waves)
 
     if graph == 'corr dist-angle':
-        #  location-angle pairs + corr
         axs = fig.subplots(3, len(waves) // 3 + 1)
         axs = axs.flatten()
 
@@ -103,7 +113,6 @@ def make_graph(filename, side, graph, time_interval, task):
             axs[i].plot(range(len(waves[i]['l'])), [x / 10 for x in waves[i]['l']], label="dist from target/10")
             axs[i].plot(range(len(waves[i]['sa'])), waves[i]['sa'], label="shoulder angle")
             axs[i].set_xlabel('frames')
-            # axs[i].set_ylabel('location')
             axs[i].legend()
 
         fig.tight_layout(pad=1.0)
@@ -118,7 +127,6 @@ def make_graph(filename, side, graph, time_interval, task):
         return make_parameters_graph(fig, side, angle_data, trials, time, time_interval, angle_velocity,
                                      dist_from_target, param_filename)
 
-    # compare tasks
     tasks_avg = calculate_avg_task(waves)
 
     if graph == 'compare angle/time':
@@ -128,4 +136,5 @@ def make_graph(filename, side, graph, time_interval, task):
         return make_ES_coor_graph(fig, tasks_avg)
 
     if graph == 'compare parameters':
-        return make_parameters_graph(fig, angle_data, trials, time, time_interval, angle_velocity, dist_from_target, param_filename)
+        return make_parameters_graph(fig, angle_data, trials, time, time_interval, angle_velocity, dist_from_target,
+                                     param_filename)

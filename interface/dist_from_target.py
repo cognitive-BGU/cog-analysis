@@ -23,29 +23,40 @@ def calculate_center(data, landmark1, landmark2, i):
 
 
 def calculate_target_location(data, side):
-    tasks_intervals = [[100, 7300], [7400, 10500], [10400, 14100]]
+    tasks_intervals = [[100, 7300], [7400, 10500], [10400, 14100], [14200, 17000], [17100, 20000]]
     task_location = []
 
     for i in range(len(data)):
         shoulder_distance = calculate_distance(data, "LEFT_SHOULDER", "RIGHT_SHOULDER", i)
-        task_dist = shoulder_distance * 2.1
         shoulder = [data[f"{side}_SHOULDER X"][i] * 1920, data[f"{side}_SHOULDER Y"][i] * 1080]
 
-        if tasks_intervals[0][0] < i < tasks_intervals[0][1]:  # apple
+        if tasks_intervals[0][0] < i < tasks_intervals[0][1]:  # apple 1
             angle_radians = np.deg2rad(FIRST_APPLE_ANGLE if side == 'LEFT' else 180 - FIRST_APPLE_ANGLE)
-            # angle_radians = np.deg2rad(SECOND_APPLE_ANGLE if side == 'LEFT' else 180 - SECOND_APPLE_ANGLE)
-            task_location.append([int(shoulder[0] + task_dist * np.cos(angle_radians)),
-                                  int(shoulder[1] - task_dist * np.sin(angle_radians))])
+            task_location.append([int(shoulder[0] + shoulder_distance * 2.1 * np.cos(angle_radians)),
+                                  int(shoulder[1] - shoulder_distance * 2.1 * np.sin(angle_radians))])
 
-        elif tasks_intervals[1][0] < i < tasks_intervals[1][1]:  # hat
+        elif tasks_intervals[1][0] < i < tasks_intervals[1][1]:  # apple 2
+            angle_radians = np.deg2rad(SECOND_APPLE_ANGLE if side == 'LEFT' else 180 - SECOND_APPLE_ANGLE)
+            task_location.append([int(shoulder[0] + shoulder_distance * 2.1 * np.cos(angle_radians)),
+                                  int(shoulder[1] - shoulder_distance * 2.1 * np.sin(angle_radians))])
+
+        elif tasks_intervals[2][0] < i < tasks_intervals[2][1]:  # hat
             shoulder_center = calculate_center(data, "LEFT_SHOULDER", "RIGHT_SHOULDER", i)
-            image_size = int(shoulder_distance / 3)
-            task_location.append(
-                [int(shoulder_center[0] - shoulder_distance * 1.25), int(shoulder_center[1] - image_size / 2)])
+            task_location.append([int(shoulder_center[0] - shoulder_distance * 1.25),
+                                  int(shoulder_center[1] - shoulder_distance / 3)])
 
-        elif tasks_intervals[2][0] < i < tasks_intervals[2][1]:  # parrot
-            image_size = int(shoulder_distance / 2)
-            task_location.append([int(shoulder[0] - image_size), int(shoulder[1] - image_size / 2)])
+        elif tasks_intervals[3][0] < i < tasks_intervals[3][1]:  # parrot
+            task_location.append([int(shoulder[0] - shoulder_distance / 2),
+                                  int(shoulder[1] - shoulder_distance / 2)])
+
+        elif tasks_intervals[4][0] < i < tasks_intervals[4][1]:  # blue bird
+            nose = [data["NOSE X"][i] * 1920, data["NOSE Y"][i] * 1080]
+            if side == 'RIGHT':
+                image_x = int(nose[0] - shoulder_distance * 3 - shoulder_distance)
+            else:
+                image_x = int(nose[0] + shoulder_distance * 3)
+            image_y = int(nose[1] - shoulder_distance * 3)
+            task_location.append([image_x, image_y])
 
         else:
             task_location.append(None)
