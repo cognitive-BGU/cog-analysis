@@ -21,7 +21,8 @@ def edit_trials(filename, side, time_interval):
     trial_end = None
 
     directory = os.path.dirname(filename)
-    json_file = os.path.join(directory, f'{side}.json')
+    original_filename = os.path.splitext(os.path.basename(filename))[0]
+    json_file = os.path.join(directory, f'{original_filename}_{side}.json')
 
     def make_graph(filename, side, time_interval):
         fig = plt.figure(figsize=(13, 7))

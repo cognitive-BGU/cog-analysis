@@ -80,7 +80,8 @@ def make_graph(filename, side, graph, time_interval, task):
     elbow_angle_data = make_vector_angle2D(data, side, ['WRIST', 'ELBOW', 'SHOULDER'])
 
     directory = os.path.dirname(filename)
-    trials_filename = os.path.join(directory, f'{side}.json')
+    original_filename = os.path.splitext(os.path.basename(filename))[0]
+    trials_filename = os.path.join(directory, f'{original_filename}_{side}.json')
     trials, max_v_indices = load_trials_from_json(angle_velocity, trials_filename)
 
     if graph == 'values':
