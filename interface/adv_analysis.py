@@ -105,14 +105,30 @@ def make_graph(filename, side, graph, time_interval, task):
         return make_all_trials_graph(fig, waves)
 
     if graph == 'corr dist-angle':
+        # location-angle pairs + corr
         axs = fig.subplots(3, len(waves) // 3 + 1)
         axs = axs.flatten()
 
         for i in range(len(waves)):
-            corr, _ = pearsonr(waves[i]['l'], waves[i]['sa'])
-            axs[i].set_title(f'sec:{waves[i]["t-i"]}, corr:{round(corr, 3)}')
-            axs[i].plot(range(len(waves[i]['l'])), [x / 10 for x in waves[i]['l']], label="dist from target/10")
-            axs[i].plot(range(len(waves[i]['sa'])), waves[i]['sa'], label="shoulder angle")
+            # Filter out None values
+            valid_indices = [j for j in range(len(waves[i]['l'])) if
+                             waves[i]['l'][j] is not None and waves[i]['sa'][j] is not None]
+            filtered_l = [waves[i]['l'][j] for j in valid_indices]
+            filtered_sa = [waves[i]['sa'][j] for j in valid_indices]
+
+            # Compute correlation only if valid data is available
+            if len(filtered_l) > 1 and len(filtered_sa) > 1:  # Pearson correlation requires at least 2 data points
+                corr, _ = pearsonr(filtered_l, filtered_sa)
+                axs[i].set_title(f'sec:{waves[i]["t-i"]}, corr:{round(corr, 3)}')
+            else:
+                corr = None  # Handle cases with insufficient data
+                axs[i].set_title(f'sec:{waves[i]["t-i"]}, corr:N/A')
+
+            # Plot data
+            axs[i].plot(range(len(waves[i]['l'])), [x / 10 if x is not None else 0 for x in waves[i]['l']],
+                        label="dist from target/10")
+            axs[i].plot(range(len(waves[i]['sa'])), [x if x is not None else 0 for x in waves[i]['sa']],
+                        label="shoulder angle")
             axs[i].set_xlabel('frames')
             axs[i].legend()
 

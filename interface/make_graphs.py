@@ -64,7 +64,7 @@ def moving_average(data, window_size):
 
 
 def make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time, dist_from_target, angle_data, elbow_angle_data, time_interval, side):
-    ax1, ax2, ax3, ax4 = fig.subplots(4, 1)
+    ax2, ax3, ax4 = fig.subplots(3, 1)
     max_v = [angle_velocity[i] for i in max_v_indices]
     max_v_times = [time[i] for i in max_v_indices]
 
@@ -90,7 +90,7 @@ def make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time, di
             if index < len(data[f'{side}_WRIST Z']):
                 wrist_z_to_draw.append(data[f'{side}_WRIST Z'][index])
 
-
+    '''
     # location
     ax1.set_title(f'Coordinate Distant from the target')
     ax1.set_ylabel('dist from the target [#]')
@@ -103,6 +103,7 @@ def make_values_graph(fig, data, trials, max_v_indices, angle_velocity, time, di
     ax1.scatter(max_v_times, max_x_val, c='g', label="max{v(angle)}")
     ax1.scatter(times_to_draw, l_data_to_draw, c='r', marker="X", label="trial")
     ax1.legend()
+    '''
 
     # v(x)
     ax2.set_title(f'Shoulder Angle Velocity')
