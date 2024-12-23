@@ -28,7 +28,8 @@ def make_parameters_graph(fig, side, angle_data, trials, time, time_interval, an
             duration_frames = len(interval_time)
             duration_seconds = interval_time[-1] - interval_time[0]
             max_velocity = max(interval_angle_velocity)
-            min_distance = min(interval_dist_from_corner)
+            #min_distance = min(interval_dist_from_corner)
+            min_distance = min([x for x in interval_dist_from_corner if x is not None])
 
             table.append(
                 [interval_time[0], max_angle, duration_frames, duration_seconds, max_velocity, min_distance])

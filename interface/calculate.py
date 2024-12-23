@@ -1,12 +1,12 @@
 import numpy as np
 
 tasks_trails = {
-    'apple': [0, 1, 2, 3, 4, 5],
-    'hat': [6, 7, 8, 9],
-    'parrot': [10, 11, 12, 13],
-    'bird': [14, 15, 16, 17]
+    'apple1': [0, 1, 2, 3],
+    'apple2': [4, 5, 6, 7],
+    'hat': [8, 9, 10, 11],
+    'parrot': [12, 13, 14, 15],
+    'bird': [16, 17, 18, 19]
 }
-
 
 def find_start(data, index):
     max_val = data[index]
@@ -103,13 +103,25 @@ def clean_data(data, window_length, polyorder):
 def calculate_avg_task(waves):
     tasks_avg = []
     for task in tasks_trails:
-        task_waves = [waves[i] for i in tasks_trails[task]]
+        task_waves = [waves[i] for i in tasks_trails[task] if i < len(waves)]
+
+        if len(task_waves) == 0:
+            print(f"No valid data for task: {task}")
+            continue
+
         min_length = min(len(wave['l']) for wave in task_waves)
+
         avg_wave = {
-            'l': [sum(wave['l'][i] for wave in task_waves) / len(task_waves) for i in range(min_length)],
+            'l': [sum(x for x in (wave['l'][i] for wave in task_waves) if x is not None) /
+                  (sum(1 for x in (wave['l'][i] for wave in task_waves) if x is not None) or 1)
+                  for i in range(min_length)],
+
             'v': [sum(wave['v'][i] for wave in task_waves) / len(task_waves) for i in range(min_length)],
+
             'sa': [sum(wave['sa'][i] for wave in task_waves) / len(task_waves) for i in range(min_length)],
+
             'ea': [sum(wave['ea'][i] for wave in task_waves) / len(task_waves) for i in range(min_length)],
+
             't-i': task
         }
         tasks_avg.append(avg_wave)
